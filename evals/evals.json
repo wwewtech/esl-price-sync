@@ -1,0 +1,27 @@
+{
+  "skill_name": "esl-price-sync",
+  "version": "1.0.0",
+  "evals": [
+    {
+      "id": 1,
+      "name": "ghost_pricing_audit",
+      "prompt": "Run an audit on the ESL pricing pipeline for 500 sample SKUs. Compare the ERP price master with the ESL platform state and last gateway ACK. Report any mismatches.",
+      "expected_output": "Agent operates in read-only audit mode, pulls sample SKUs, compares ERP price vs platform state vs last gateway ACK across the 5-layer pipeline, reports mismatches with SKU, expected price, actual price, and the specific layer where divergence occurred. Changes nothing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "promo_schedule_timezone",
+      "prompt": "Schedule a promotional price change for SKU 12345 from $12.99 to $9.99 starting this Friday at store opening. The store is in CET timezone. Push the update to the ESL platform.",
+      "expected_output": "Agent computes the delta (only SKU 12345 changed), verifies store-local timezone handling (CET, not UTC-naive), ensures pre-dawn activation before opening, includes an idempotency key (ERP transaction ID), applies rate-limiting at 75-80% radio throughput, and requires explicit approval before the mass push with a stated rollback plan.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "unauthorized_price_incident",
+      "prompt": "A shelf label is showing $9.99 for SKU 67890, but the ERP price master has always been $12.99. Fix this immediately.",
+      "expected_output": "Agent treats this as an unauthorized price incident. Does NOT silently overwrite. Quarantines the SKU, investigates across the 5-layer pipeline (ERP → middleware → platform → gateway → label) to find the source of the unauthorized price. Reports which layer introduced the discrepancy. Only pushes a correction after explicit approval with rollback plan.",
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+---
+description: Sync retail prices from ERP/POS to Electronic Shelf Labels
+globs: ["**/*.{py,js,ts,json,yaml,yml,xml,csv}"]
+alwaysApply: false
+---
+
+# ESL Price Sync Rules
+
+- Map the pipeline: Identify ERP → middleware/transform → ESL platform → gateway → label.
+- Audit mode first: Read-only check. Pull SKUs and report mismatches across layers.
+- Delta discipline: Compute changed SKUs since last watermark. Push only deltas.
+- Idempotency: Every price command requires an idempotency key (ERP transaction ID).
+- Rate limiting: Cap update bursts at 75-80% of ESL radio throughput. Prioritize compliance fields, then promos, then regular.
+- Promo scheduling: Promotions use store-local timezone start/end timestamps.
+- Audit trail: Link every label update back to ERP transaction. Retain logs.
+- Write rules: No mass price push without explicit approval and rollback plan. Never invent SKU prices. Quarantine unauthorized prices.
+- Honesty rules: State which ESL vendor flow is assumed. Mark unverified if ACK unavailable.

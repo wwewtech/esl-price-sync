@@ -1,0 +1,14 @@
+name: Validate Skill
+on: [push, pull_request]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate SKILL.md
+        run: |
+          if ! grep -q "^name:" SKILL.md; then
+            echo "SKILL.md missing name frontmatter"
+            exit 1
+          fi

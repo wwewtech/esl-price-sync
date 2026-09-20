@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESL Price Sync | wwewtech</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #000000;
+            --bg-panel: #09090b;
+            --border-color: #27272a;
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent: #ffffff;
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero {
+            padding: 6rem 0 4rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+        }
+
+        .install-box {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+        }
+
+        .section {
+            padding: 4rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            margin-bottom: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 4px;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            padding: 2rem;
+            border-radius: 4px;
+            margin-top: 2rem;
+            overflow-x: auto;
+        }
+
+        .pipeline-stage {
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .pipeline-stage span {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .arrow {
+            color: var(--text-muted);
+        }
+
+        footer {
+            padding: 3rem 0;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">wwewtech / esl-price-sync</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero container">
+            <h1>ESL Price Sync</h1>
+            <p class="hero-desc">Sync retail prices from ERP to Electronic Shelf Labels with precision. Delta updates, idempotency, and audit trails.</p>
+            <div class="install-box">
+                npx skills add wwewtech/esl-price-sync
+            </div>
+        </section>
+
+        <section class="section container">
+            <h2>The 5-Layer Pipeline</h2>
+            <p style="color: var(--text-muted);">A structured approach to trace pricing data from the master record to the shelf edge.</p>
+            <div class="pipeline">
+                <div class="pipeline-stage">ERP <span>Price Master</span></div>
+                <div class="arrow">→</div>
+                <div class="pipeline-stage">Middleware <span>Transform</span></div>
+                <div class="arrow">→</div>
+                <div class="pipeline-stage">Platform <span>ESL Mgmt</span></div>
+                <div class="arrow">→</div>
+                <div class="pipeline-stage">Gateway <span>Base Station</span></div>
+                <div class="arrow">→</div>
+                <div class="pipeline-stage">Label <span>Shelf Edge</span></div>
+            </div>
+        </section>
+
+        <section class="section container">
+            <h2>Core Capabilities</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Audit Mode First</h3>
+                    <p>Read-only by default. Compares ERP prices against platform state and last gateway ACK. Reports mismatches without silent overwrites.</p>
+                </div>
+                <div class="card">
+                    <h3>Delta Discipline</h3>
+                    <p>No full-catalog pushes. Computes changed SKUs since the last watermark and pushes only deltas to conserve bandwidth and battery.</p>
+                </div>
+                <div class="card">
+                    <h3>Idempotency & Rate Limits</h3>
+                    <p>Every price command carries an ERP transaction ID. Updates are capped at 75-80% of radio throughput to prevent gateway overload.</p>
+                </div>
+                <div class="card">
+                    <h3>Comprehensive Audit Trail</h3>
+                    <p>Links every label update back: ERP transaction → transform timestamp → platform ACK → label confirm.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            &copy; 2026 wwewtech. MIT License.
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "name": "esl-price-sync",
+  "group": {
+    "title": "Retail Pricing & ESL Sync",
+    "description": "Sync retail prices from ERP/POS to Electronic Shelf Labels: delta updates, idempotency, rate-limited rollout, promo scheduling, and audit trail."
+  }
+}
