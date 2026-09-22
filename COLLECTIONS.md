@@ -22,12 +22,12 @@ This registry catalogs **`esl-price-sync`** across every AI agent directory, Cur
 
 | Repository | Focus / Category | Status |
 | :--- | :--- | :--- |
-| **sickn33/agentic-awesome-skills** (46,500+ ⭐) | AAS Core / `skills/esl-price-sync/SKILL.md` | Prepared / Active |
-| **ComposioHQ/awesome-claude-skills** (75,000+ ⭐) | `IoT, Retail Tech & Enterprise Integration` | Prepared / Active |
-| **heilcheng/awesome-agent-skills** (6,200+ ⭐) | `Retail IoT & Distributed Systems` | Prepared / Active |
-| **VoltAgent/awesome-agent-skills** (34,500+ ⭐) | `Community Skills -> IoT & Retail` | Prepared / Active |
-| **PatrickJS/awesome-cursorrules** (10,000+ ⭐) | `Retail IoT / Fullstack` (`rules/esl-price-sync.mdc`) | Prepared / Active |
-| **BehiSecc/awesome-claude-skills** (10,000+ ⭐) | `Enterprise & IoT Tools` | Prepared / Active |
+| **sickn33/agentic-awesome-skills** (46,500+ ⭐) | AAS Core / `skills/esl-price-sync/SKILL.md` | [PR #1561](https://github.com/sickn33/agentic-awesome-skills/pull/1561) |
+| **ComposioHQ/awesome-claude-skills** (75,000+ ⭐) | `IoT, Retail Tech & Enterprise Integration` | [PR #1961](https://github.com/ComposioHQ/awesome-claude-skills/pull/1961) |
+| **heilcheng/awesome-agent-skills** (6,200+ ⭐) | `Retail IoT & Distributed Systems` | [PR #516](https://github.com/heilcheng/awesome-agent-skills/pull/516) |
+| **VoltAgent/awesome-agent-skills** (34,500+ ⭐) | `Community Skills -> IoT & Retail` | [PR #1091](https://github.com/VoltAgent/awesome-agent-skills/pull/1091) |
+| **PatrickJS/awesome-cursorrules** (10,000+ ⭐) | `Retail IoT / Fullstack` (`rules/esl-price-sync.mdc`) | [PR #390](https://github.com/PatrickJS/awesome-cursorrules/pull/390) |
+| **BehiSecc/awesome-claude-skills** (10,000+ ⭐) | `Enterprise & IoT Tools` | [PR #746](https://github.com/BehiSecc/awesome-claude-skills/pull/746) |
 | **rohitg00/awesome-claude-code-toolkit** (2,300+ ⭐) | `Skills -> IoT & Synchronization` | Prepared / Active |
 | **Prat011/awesome-llm-skills** (1,700+ ⭐) | `Retail Systems & IoT Protocols` | Prepared / Active |
 | **libukai/awesome-agent-skills** (5,100+ ⭐) | `精选技能 -> 智能零售与物联网 (Smart Retail & IoT)` | Prepared / Active |
