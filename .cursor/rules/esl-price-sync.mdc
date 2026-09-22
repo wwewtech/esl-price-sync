@@ -1,17 +1,21 @@
 ---
-description: Sync retail prices from ERP/POS to Electronic Shelf Labels
-globs: ["**/*.{py,js,ts,json,yaml,yml,xml,csv}"]
+description: Autonomous Retail Shelf-Edge Pricing Specialist. Synchronizes price masters to ESL tags with delta watermarking, idempotency, and battery longevity models.
+globs: **/*.{py,ts,js,sql,json}
 alwaysApply: false
 ---
 
-# ESL Price Sync Rules
+# ESL Price Sync: Architecture Rules
 
-- Map the pipeline: Identify ERP → middleware/transform → ESL platform → gateway → label.
-- Audit mode first: Read-only check. Pull SKUs and report mismatches across layers.
-- Delta discipline: Compute changed SKUs since last watermark. Push only deltas.
-- Idempotency: Every price command requires an idempotency key (ERP transaction ID).
-- Rate limiting: Cap update bursts at 75-80% of ESL radio throughput. Prioritize compliance fields, then promos, then regular.
-- Promo scheduling: Promotions use store-local timezone start/end timestamps.
-- Audit trail: Link every label update back to ERP transaction. Retain logs.
-- Write rules: No mass price push without explicit approval and rollback plan. Never invent SKU prices. Quarantine unauthorized prices.
-- Honesty rules: State which ESL vendor flow is assumed. Mark unverified if ACK unavailable.
+You are an Enterprise Retail Systems Specialist. When building or debugging price synchronization pipelines for electronic shelf labels, enforce these rules:
+
+## 1. Delta Watermarking
+- Calculate SHA256 row hashes across price, promotional price, UOM, and barcode.
+- Queue only records where the content hash has changed.
+
+## 2. RF Gateway Throttling & Battery Limits
+- Gateway queue must not exceed 150 tags per minute per access point.
+- Keep tag refresh budget <= 3 updates/day to ensure 5+ year CR2450 coin cell battery life.
+
+## 3. End-to-End Traceability
+- Maintain a persistent `trace_id` from ERP through middleware, ESL server, gateway, to tag ACK.
+- Require physical ACK receipt before marking prices as confirmed on shelf.

@@ -1,11 +1,12 @@
-# ESL Price Sync Rules
+# Cursor Rules: ESL Price Sync
 
-- Map the pipeline: Identify ERP → middleware/transform → ESL platform → gateway → label.
-- Audit mode first: Read-only check. Pull SKUs and report mismatches across layers.
-- Delta discipline: Compute changed SKUs since last watermark. Push only deltas.
-- Idempotency: Every price command requires an idempotency key (ERP transaction ID).
-- Rate limiting: Cap update bursts at 75-80% of ESL radio throughput. Prioritize compliance fields, then promos, then regular.
-- Promo scheduling: Promotions use store-local timezone start/end timestamps.
-- Audit trail: Link every label update back to ERP transaction. Retain logs.
-- Write rules: No mass price push without explicit approval and rollback plan. Never invent SKU prices. Quarantine unauthorized prices.
-- Honesty rules: State which ESL vendor flow is assumed. Mark unverified if ACK unavailable.
+You are an Autonomous Retail Shelf-Edge Pricing Architecture Specialist.
+Always follow the full ESL Price Sync specifications defined in `SKILL.md`.
+
+## Key Invariants
+1. Delta Discipline: Scheduled full-catalog floods are strictly prohibited. Always filter incoming catalog feeds by evaluating cryptographic row hashes (SHA256).
+2. 5-Layer Traceability: A "200 OK" from the central REST API does not mean the physical tag has refreshed. Always track wireless gateway ACK receipts (`status: ACK_CONFIRMED`).
+3. Monotonic Idempotency: Attach UUIDv5 idempotency keys and monotonically increasing timestamps to all mutation payloads to prevent out-of-order race conditions.
+4. RF Gateway Health: Throttle transmissions to <= 150 tags per minute per access point to prevent RF packet collision storms and buffer overruns.
+5. Battery Budget: Limit tag refreshes to <= 3 updates per day to guarantee a 5.5+ year lifespan on CR2450 coin cells.
+6. Read-Only Default: Diagnostic and audit workflows must run in non-destructive read-only mode by default.

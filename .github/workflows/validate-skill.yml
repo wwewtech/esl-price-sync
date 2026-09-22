@@ -1,14 +1,46 @@
 name: Validate Skill
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Validate SKILL.md
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate SKILL.md Frontmatter & Symmetry
         run: |
-          if ! grep -q "^name:" SKILL.md; then
-            echo "SKILL.md missing name frontmatter"
-            exit 1
-          fi
+          python -c "
+          import re, hashlib, sys
+
+          with open('SKILL.md', 'r', encoding='utf-8') as f:
+              content = f.read()
+
+          # 1. Frontmatter check
+          assert content.startswith('---'), 'SKILL.md must start with YAML frontmatter'
+          match = re.match(r'^---\s*\n(.*?)\n---', content, re.DOTALL)
+          assert match, 'Failed to parse YAML frontmatter'
+          fm = match.group(1)
+
+          # 2. Required fields
+          assert re.search(r'^name:\s*\S+', fm, re.M), 'Missing name in frontmatter'
+          assert re.search(r'^description:\s*\S+', fm, re.M), 'Missing description in frontmatter'
+
+          # 3. Symmetry check
+          h1 = hashlib.sha256(open('SKILL.md', 'rb').read()).hexdigest()
+          h2 = hashlib.sha256(open('skills/esl-price-sync/SKILL.md', 'rb').read()).hexdigest()
+          assert h1 == h2, f'Symmetry check failed! Root hash {h1} != skills hash {h2}'
+
+          print('✓ YAML Frontmatter is valid!')
+          print('✓ SHA256 symmetry check passed!')
+          print('✓ SKILL.md passed all validation checks!')
+          "

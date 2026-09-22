@@ -1,9 +1,8 @@
 {
   "name": "@wwewtech/esl-price-sync",
   "version": "1.0.0",
-  "description": "Sync retail prices from ERP/POS to Electronic Shelf Labels (ZKONG, SES-imagotag, Pricer, Hanshow, SOLUM): delta updates, idempotency, rate-limited rollout, promo scheduling, and audit trail.",
-  "author": "Pavel Lebedev <pasha20051344@gmail.com> (https://wwew.tech)",
-  "license": "MIT",
+  "description": "Autonomous Retail Shelf-Edge Pricing Architecture Specialist for AI Agents. Syncs ERP/POS price masters to ESL fleets with delta watermarking and battery modeling.",
+  "main": "SKILL.md",
   "keywords": [
     "agent-skills",
     "skills-sh",
@@ -11,13 +10,20 @@
     "antigravity",
     "cursor",
     "windsurf",
+    "retail-tech",
     "esl",
-    "electronic-shelf-labels",
-    "retail",
-    "pricing",
-    "erp",
-    "point-of-sale",
-    "zkong",
-    "ses-imagotag"
-  ]
+    "iot",
+    "supply-chain",
+    "systems-integration"
+  ],
+  "author": "Pavel Lebedev <pasha20051344@gmail.com> (https://wwew.tech)",
+  "license": "MIT",
+  "homepage": "https://skills.sh/wwewtech/esl-price-sync",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wwewtech/esl-price-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wwewtech/esl-price-sync/issues"
+  }
 }

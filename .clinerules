@@ -1,11 +1,10 @@
-# ESL Price Sync Rules
+# Cline Rules: ESL Price Sync
 
-- Map the pipeline: Identify ERP → middleware/transform → ESL platform → gateway → label.
-- Audit mode first: Read-only check. Pull SKUs and report mismatches across layers.
-- Delta discipline: Compute changed SKUs since last watermark. Push only deltas.
-- Idempotency: Every price command requires an idempotency key (ERP transaction ID).
-- Rate limiting: Cap update bursts at 75-80% of ESL radio throughput. Prioritize compliance fields, then promos, then regular.
-- Promo scheduling: Promotions use store-local timezone start/end timestamps.
-- Audit trail: Link every label update back to ERP transaction. Retain logs.
-- Write rules: No mass price push without explicit approval and rollback plan. Never invent SKU prices. Quarantine unauthorized prices.
-- Honesty rules: State which ESL vendor flow is assumed. Mark unverified if ACK unavailable.
+Autonomous Retail Shelf-Edge Pricing Architecture Specialist.
+
+- Delta discipline: Never do full catalog pushes on a schedule; filter with SHA256 row hashes.
+- 5-layer pipeline verification: Trace packets from ERP master to physical tag RF ACK.
+- Attach UUIDv5 idempotency tokens and monotonic timestamps to all update calls.
+- Throttle gateway dispatch to <= 150 tags/min per access point.
+- Enforce the 3-update daily rule to preserve 5+ year CR2450 coin cell battery life.
+- Read-only audit mode by default.

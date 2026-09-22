@@ -1,7 +1,13 @@
 {
-  "name": "esl-price-sync",
-  "group": {
-    "title": "Retail Pricing & ESL Sync",
-    "description": "Sync retail prices from ERP/POS to Electronic Shelf Labels: delta updates, idempotency, rate-limited rollout, promo scheduling, and audit trail."
-  }
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Enterprise Retail & IoT Systems Architecture",
+      "description": "High-reliability price synchronization, delta watermarking, RF rate limiting, and battery lifecycle preservation for Electronic Shelf Labels.",
+      "skills": [
+        "esl-price-sync"
+      ]
+    }
+  ]
 }

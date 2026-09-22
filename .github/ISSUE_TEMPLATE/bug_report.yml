@@ -1,0 +1,26 @@
+name: Bug Report
+description: Report a synchronization failure, dropped packet loop, or ghost price anomaly
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve esl-price-sync!
+  - type: input
+    id: esl_vendor
+    attributes:
+      label: ESL Hardware Platform
+      placeholder: e.g. ZKONG / SES-imagotag VUSION / Pricer
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Describe what pipeline layer diverged or what pricing failure occurred.
+    validations:
+      required: true
+  - type: textarea
+    id: packet_sample
+    attributes:
+      label: Sample Payload / ACK Response
+      description: Paste sanitized JSON payload or gateway ACK logs.

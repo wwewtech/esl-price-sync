@@ -1,27 +1,22 @@
 {
-  "skill_name": "esl-price-sync",
-  "version": "1.0.0",
   "evals": [
     {
       "id": 1,
-      "name": "ghost_pricing_audit",
-      "prompt": "Run an audit on the ESL pricing pipeline for 500 sample SKUs. Compare the ERP price master with the ESL platform state and last gateway ACK. Report any mismatches.",
-      "expected_output": "Agent operates in read-only audit mode, pulls sample SKUs, compares ERP price vs platform state vs last gateway ACK across the 5-layer pipeline, reports mismatches with SKU, expected price, actual price, and the specific layer where divergence occurred. Changes nothing.",
-      "files": []
+      "name": "delta-watermark-and-rate-limiting",
+      "prompt": "We have 45,000 items in our retail ERP database. Every hour about 80 prices change. How should we build the update script to sync prices to our ZKONG access points?",
+      "expected_output": "The agent strictly rejects pushing the full 45,000 catalog on a schedule. It requires calculating SHA256 content hashes per row to isolate the ~80 changed SKUs, generating idempotent mutation payloads with UUID tokens, and throttling transmission through the gateway at <= 150 tags per minute per access point to preserve CR2450 coin cell battery life."
     },
     {
       "id": 2,
-      "name": "promo_schedule_timezone",
-      "prompt": "Schedule a promotional price change for SKU 12345 from $12.99 to $9.99 starting this Friday at store opening. The store is in CET timezone. Push the update to the ESL platform.",
-      "expected_output": "Agent computes the delta (only SKU 12345 changed), verifies store-local timezone handling (CET, not UTC-naive), ensures pre-dawn activation before opening, includes an idempotency key (ERP transaction ID), applies rate-limiting at 75-80% radio throughput, and requires explicit approval before the mass push with a stated rollback plan.",
-      "files": []
+      "name": "ghost-pricing-reconciliation-audit",
+      "prompt": "A customer complained that a box of cereal showed $3.99 on the digital shelf tag, but scanned as $4.99 at the checkout register. How do we audit and fix this ghost pricing across our 20,000 tags?",
+      "expected_output": "The agent specifies an end-to-end reconciliation audit across the 5 layers: ERP Master, Middleware, ESL Server, Gateway, and Tag ACK. It identifies where the packet diverged (e.g., dropped RF packet without ACK confirmation), performs a targeted single-SKU re-transmit, and verifies physical tag ACK receipt before concluding."
     },
     {
       "id": 3,
-      "name": "unauthorized_price_incident",
-      "prompt": "A shelf label is showing $9.99 for SKU 67890, but the ERP price master has always been $12.99. Fix this immediately.",
-      "expected_output": "Agent treats this as an unauthorized price incident. Does NOT silently overwrite. Quarantines the SKU, investigates across the 5-layer pipeline (ERP → middleware → platform → gateway → label) to find the source of the unauthorized price. Reports which layer introduced the discrepancy. Only pushes a correction after explicit approval with rollback plan.",
-      "files": []
+      "name": "battery-life-and-freezer-temperature-derating",
+      "prompt": "Our operations team wants to refresh electronic shelf labels in the ice cream freezer (-18C) every 30 minutes with live promotions. Calculate what this does to tag battery life.",
+      "expected_output": "The agent performs battery consumption calculations: 48 updates/day drastically exceeds the 3 updates/day longevity ceiling. Combined with low-temperature chemical de-rating at -18C (reducing usable coin cell capacity by ~35%), battery life will collapse from 6+ years to under 4 months. The agent strongly recommends limiting freezer tag updates to <= 2 per day."
     }
   ]
 }

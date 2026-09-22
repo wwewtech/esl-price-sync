@@ -1,0 +1,18 @@
+name: Propose ESL Gateway Driver / Schema
+description: Suggest an adapter format or retry workflow for an unlisted ESL vendor
+labels: ["enhancement", "adapter"]
+body:
+  - type: input
+    id: vendor_name
+    attributes:
+      label: Vendor & Gateway Model
+      placeholder: e.g. SOLUM Newton Sub-GHz AP
+    validations:
+      required: true
+  - type: textarea
+    id: api_spec
+    attributes:
+      label: API & Telemetry Specifications
+      description: Provide the payload format, rate-limiting limits, and ACK return codes.
+    validations:
+      required: true

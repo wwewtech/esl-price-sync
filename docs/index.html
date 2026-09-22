@@ -1,224 +1,631 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESL Price Sync | wwewtech</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #000000;
-            --bg-panel: #09090b;
-            --border-color: #27272a;
-            --text-main: #f4f4f5;
-            --text-muted: #a1a1aa;
-            --accent: #ffffff;
-            --font-sans: 'Inter', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>esl-price-sync · Retail Shelf-Edge Pricing Architecture & Simulator</title>
+  <meta name="description" content="Synchronize retail price masters (ERP/POS) to Electronic Shelf Labels (SES-imagotag, ZKONG, Pricer) with delta watermarking, idempotency, and battery modeling.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%23000%22/><rect x=%226%22 y=%228%22 width=%2220%22 height=%2216%22 rx=%223%22 fill=%22none%22 stroke=%22%233b82f6%22 stroke-width=%222.5%22/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #000000;
+      --surface-1: #09090b;
+      --surface-2: #121215;
+      --surface-elevated: #18181c;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.16);
+      --text: #f4f4f5;
+      --text-dim: #a1a1aa;
+      --text-muted: #52525b;
+      --accent-blue: #3b82f6;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', Consolas, monospace;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            font-family: var(--font-sans);
-            line-height: 1.6;
-        }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
+    header.site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      height: 54px;
+      display: flex;
+      align-items: center;
+    }
+    .header-inner {
+      max-width: 1040px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+    }
+    .brand-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: #1e3a8a;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      display: grid;
+      place-items: center;
+      color: #60a5fa;
+      font-weight: 700;
+      font-size: 11px;
+    }
+    .brand-title { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+    .nav-links { display: flex; gap: 16px; font-size: 13px; }
+    .nav-links a { color: var(--text-dim); text-decoration: none; transition: color 120ms; }
+    .nav-links a:hover { color: #fff; }
 
-        header {
-            position: sticky;
-            top: 0;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 0;
-            z-index: 100;
-        }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 40px 20px 100px;
+    }
 
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .hero {
+      padding: 40px 0 32px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--text-dim);
+      max-width: 720px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
 
-        .logo {
-            font-weight: 600;
-            font-size: 1.1rem;
-            letter-spacing: -0.02em;
-        }
+    .install-bar {
+      display: flex;
+      align-items: center;
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      max-width: 540px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .install-bar code { flex: 1; color: #38bdf8; }
+    .copy-btn {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text);
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 120ms var(--ease-out);
+    }
+    .copy-btn:hover { background: #27272a; border-color: var(--border-hover); }
+    .copy-btn:active { transform: scale(0.96); }
 
-        .hero {
-            padding: 6rem 0 4rem;
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin: 48px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-subtitle { color: var(--text-dim); font-size: 14px; margin-bottom: 24px; }
 
-        h1 {
-            font-size: 3rem;
-            font-weight: 600;
-            letter-spacing: -0.04em;
-            margin-bottom: 1rem;
-            color: var(--accent);
-        }
+    /* Box */
+    .sim-box {
+      background: var(--surface-1);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .sim-header {
+      background: var(--surface-2);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .sim-title { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-dim); }
+    .sim-body { padding: 24px; }
 
-        .hero-desc {
-            font-size: 1.25rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 3rem;
-        }
+    /* Pipeline 5-Layer Graphic */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 768px) {
+      .pipeline-grid { grid-template-columns: 1fr; }
+    }
 
-        .install-box {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 1rem 2rem;
-            border-radius: 4px;
-            display: inline-flex;
-            align-items: center;
-            font-family: var(--font-mono);
-            font-size: 0.9rem;
-        }
+    .pipeline-node {
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      text-align: center;
+      transition: all 150ms;
+      position: relative;
+    }
+    .pipeline-node.active {
+      border-color: var(--accent-blue);
+      background: rgba(59, 130, 246, 0.1);
+      transform: translateY(-2px);
+    }
+    .pipeline-node.success {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.1);
+    }
+    .pipe-step { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    .pipe-name { font-weight: 600; font-size: 13px; margin: 4px 0; color: #fff; }
+    .pipe-status { font-family: var(--font-mono); font-size: 11px; color: var(--accent-emerald); }
 
-        .section {
-            padding: 4rem 0;
-            border-bottom: 1px solid var(--border-color);
-        }
+    /* Split layout */
+    .split-2col {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 768px) {
+      .split-2col { grid-template-columns: 1fr; }
+    }
 
-        h2 {
-            font-size: 1.5rem;
-            font-weight: 500;
-            margin-bottom: 2rem;
-        }
+    /* Tag Hardware Screen Preview (2.9" E-Paper) */
+    .epaper-frame {
+      width: 280px;
+      height: 180px;
+      background: #ffffff;
+      border: 10px solid #1c1917;
+      border-radius: 6px;
+      margin: 0 auto;
+      padding: 14px;
+      color: #000000;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      position: relative;
+      user-select: none;
+    }
+    .epaper-title { font-size: 14px; font-weight: 700; text-transform: uppercase; line-height: 1.2; }
+    .epaper-uom { font-size: 11px; color: #57534e; margin-top: 2px; }
+    .epaper-price-box { display: flex; align-items: baseline; justify-content: flex-end; margin-top: 6px; }
+    .epaper-currency { font-size: 20px; font-weight: 700; margin-right: 2px; }
+    .epaper-price { font-size: 46px; font-weight: 800; letter-spacing: -0.04em; }
+    .epaper-cents { font-size: 24px; font-weight: 800; margin-left: 2px; }
+    .epaper-promo-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #dc2626;
+      color: #ffffff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .epaper-barcode {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: #78716c;
+      border-top: 1px dashed #d6d3d1;
+      padding-top: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
+    /* Controls */
+    .control-row { margin-bottom: 14px; }
+    .control-row label { display: block; font-size: 12px; color: var(--text-dim); margin-bottom: 6px; }
+    input[type=text], input[type=number] {
+      width: 100%;
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      outline: none;
+    }
+    input:focus { border-color: var(--accent-blue); }
 
-        .card {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            border-radius: 4px;
-        }
+    .btn-sync {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 120ms var(--ease-out);
+    }
+    .btn-sync:hover { background: #1d4ed8; }
+    .btn-sync:active { transform: scale(0.97); }
 
-        .card h3 {
-            font-size: 1.1rem;
-            margin-top: 0;
-            margin-bottom: 1rem;
-            font-weight: 500;
-        }
+    .stat-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid var(--border-subtle); font-size: 12.5px; }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-k { color: var(--text-dim); }
+    .stat-v { font-family: var(--font-mono); font-weight: 500; }
 
-        .card p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            margin: 0;
-        }
+    /* Tables */
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 16px;
+      border: 1px solid var(--border-subtle);
+    }
+    table.data-table th {
+      background: var(--surface-2);
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+    }
+    table.data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--surface-1);
+    }
 
-        .pipeline {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            padding: 2rem;
-            border-radius: 4px;
-            margin-top: 2rem;
-            overflow-x: auto;
-        }
-
-        .pipeline-stage {
-            text-align: center;
-            min-width: 100px;
-        }
-
-        .pipeline-stage span {
-            display: block;
-            font-family: var(--font-mono);
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
-        .arrow {
-            color: var(--text-muted);
-        }
-
-        footer {
-            padding: 3rem 0;
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.9rem;
-        }
-    </style>
+    footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 40px 0;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container header-content">
-            <div class="logo">wwewtech / esl-price-sync</div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="#" class="brand">
+        <div class="brand-icon">&#x1F3F7;</div>
+        <span class="brand-title">esl-price-sync</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#pipeline">Pipeline Simulator</a>
+        <a href="#battery">Battery Model</a>
+        <a href="#rules">Anti-Patterns</a>
+        <a href="https://github.com/wwewtech/esl-price-sync" target="_blank" rel="noopener">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+
+    <section class="hero">
+      <div class="badge">RETAIL SHELF-EDGE ARCHITECTURE · v1.0.0</div>
+      <h1>Synchronize Retail Pricing to Electronic Shelf Labels</h1>
+      <p>Architect and simulate 5-layer price pipelines for SES-imagotag, ZKONG, Pricer, and Hanshow. Enforce cryptographic row hashes (&Delta;), monotonic idempotency tokens, RF rate limits (&le; 150 tags/min), and CR2450 coin cell battery preservation models.</p>
+
+      <div class="install-bar">
+        <code>npx skills add wwewtech/esl-price-sync</code>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText('npx skills add wwewtech/esl-price-sync'); this.innerText='Copied!'; setTimeout(()=>this.innerText='Copy', 1500)">Copy</button>
+      </div>
+    </section>
+
+    <!-- PIPELINE SIMULATOR -->
+    <h2 class="section-title" id="pipeline">&#x26A1; 5-Layer End-to-End Pipeline Simulator</h2>
+    <p class="section-subtitle">Modify the master ERP price and trigger a delta sync to watch the transaction traverse all 5 layers to the physical e-paper tag.</p>
+
+    <div class="sim-box">
+      <div class="sim-header">
+        <span class="sim-title">TRANSACTION PIPELINE · TRACE ID: <span id="traceId" style="color: var(--accent-blue);">TRC-994102-A</span></span>
+      </div>
+      <div class="sim-body">
+
+        <!-- 5 Nodes -->
+        <div class="pipeline-grid">
+          <div class="pipeline-node success" id="node1">
+            <div class="pipe-step">Layer 1</div>
+            <div class="pipe-name">ERP Master</div>
+            <div class="pipe-status" id="st1">Committed</div>
+          </div>
+          <div class="pipeline-node" id="node2">
+            <div class="pipe-step">Layer 2</div>
+            <div class="pipe-name">Middleware</div>
+            <div class="pipe-status" id="st2">Ready</div>
+          </div>
+          <div class="pipeline-node" id="node3">
+            <div class="pipe-step">Layer 3</div>
+            <div class="pipe-name">ESL Server</div>
+            <div class="pipe-status" id="st3">Ready</div>
+          </div>
+          <div class="pipeline-node" id="node4">
+            <div class="pipe-step">Layer 4</div>
+            <div class="pipe-name">RF Gateway</div>
+            <div class="pipe-status" id="st4">Ready</div>
+          </div>
+          <div class="pipeline-node" id="node5">
+            <div class="pipe-step">Layer 5</div>
+            <div class="pipe-name">2.9&quot; E-Paper</div>
+            <div class="pipe-status" id="st5">Synced</div>
+          </div>
         </div>
-    </header>
 
-    <main>
-        <section class="hero container">
-            <h1>ESL Price Sync</h1>
-            <p class="hero-desc">Sync retail prices from ERP to Electronic Shelf Labels with precision. Delta updates, idempotency, and audit trails.</p>
-            <div class="install-box">
-                npx skills add wwewtech/esl-price-sync
+        <div class="split-2col">
+          <!-- Form controls -->
+          <div>
+            <div class="control-row">
+              <label>SKU Item Description</label>
+              <input type="text" id="inpTitle" value="Organic Oat Milk 1L Barista" oninput="updatePreview()">
             </div>
-        </section>
-
-        <section class="section container">
-            <h2>The 5-Layer Pipeline</h2>
-            <p style="color: var(--text-muted);">A structured approach to trace pricing data from the master record to the shelf edge.</p>
-            <div class="pipeline">
-                <div class="pipeline-stage">ERP <span>Price Master</span></div>
-                <div class="arrow">→</div>
-                <div class="pipeline-stage">Middleware <span>Transform</span></div>
-                <div class="arrow">→</div>
-                <div class="pipeline-stage">Platform <span>ESL Mgmt</span></div>
-                <div class="arrow">→</div>
-                <div class="pipeline-stage">Gateway <span>Base Station</span></div>
-                <div class="arrow">→</div>
-                <div class="pipeline-stage">Label <span>Shelf Edge</span></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;" class="control-row">
+              <div>
+                <label>ERP Master Price ($)</label>
+                <input type="number" id="inpPrice" step="0.01" value="4.49" oninput="updatePreview()">
+              </div>
+              <div>
+                <label>Promotional Label</label>
+                <input type="text" id="inpPromo" value="SPECIAL" oninput="updatePreview()">
+              </div>
             </div>
-        </section>
 
-        <section class="section container">
-            <h2>Core Capabilities</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Audit Mode First</h3>
-                    <p>Read-only by default. Compares ERP prices against platform state and last gateway ACK. Reports mismatches without silent overwrites.</p>
-                </div>
-                <div class="card">
-                    <h3>Delta Discipline</h3>
-                    <p>No full-catalog pushes. Computes changed SKUs since the last watermark and pushes only deltas to conserve bandwidth and battery.</p>
-                </div>
-                <div class="card">
-                    <h3>Idempotency & Rate Limits</h3>
-                    <p>Every price command carries an ERP transaction ID. Updates are capped at 75-80% of radio throughput to prevent gateway overload.</p>
-                </div>
-                <div class="card">
-                    <h3>Comprehensive Audit Trail</h3>
-                    <p>Links every label update back: ERP transaction → transform timestamp → platform ACK → label confirm.</p>
-                </div>
+            <div style="display: flex; gap: 10px; margin-top: 18px;">
+              <button class="btn-sync" id="btnTriggerSync" onclick="runPipelineSync()">Dispatch Delta Sync</button>
             </div>
-        </section>
-    </main>
 
-    <footer>
-        <div class="container">
-            &copy; 2026 wwewtech. MIT License.
+            <div style="margin-top: 20px;">
+              <div class="stat-row"><span class="stat-k">SHA256 Delta Watermark</span><span class="stat-v" id="valHash" style="font-size: 11px;">e3b0c44298fc1c...</span></div>
+              <div class="stat-row"><span class="stat-k">Idempotency Token</span><span class="stat-v" id="valIdem" style="font-size: 11px;">UUIDv5-9941</span></div>
+              <div class="stat-row"><span class="stat-k">RF Dispatch Queue</span><span class="stat-v" style="color: var(--accent-emerald);">Throttled (120 tags/min)</span></div>
+            </div>
+          </div>
+
+          <!-- Tag preview -->
+          <div>
+            <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-dim); text-align: center; margin-bottom: 8px;">
+              PHYSICAL 2.9&quot; 3-COLOR E-PAPER DISPLAY
+            </div>
+            <div class="epaper-frame" id="epaperFrame">
+              <div class="epaper-promo-badge" id="epPromoBadge">SPECIAL</div>
+              <div>
+                <div class="epaper-title" id="epTitle">Organic Oat Milk 1L Barista</div>
+                <div class="epaper-uom">$4.49 / 1000 ml</div>
+              </div>
+              <div class="epaper-price-box">
+                <span class="epaper-currency">$</span>
+                <span class="epaper-price" id="epInt">4</span>
+                <span class="epaper-cents" id="epCents">.49</span>
+              </div>
+              <div class="epaper-barcode">
+                <span>4006381333931</span>
+                <span>TAG-00:1A:7D</span>
+              </div>
+            </div>
+          </div>
         </div>
-    </footer>
+
+      </div>
+    </div>
+
+    <!-- BATTERY LONGEVITY MODEL -->
+    <h2 class="section-title" id="battery">&#x1F50B; Tag Battery Longevity Engineering Model</h2>
+    <p class="section-subtitle">Model coin cell consumption based on daily RF refresh rates and store temperature zones (Chilled / Ambient).</p>
+
+    <div class="sim-box">
+      <div class="sim-body">
+        <div class="split-2col">
+          <div>
+            <div class="control-row">
+              <label style="display: flex; justify-content: space-between;">
+                <span>Daily Screen Refreshes</span>
+                <span id="lblRefreshes" style="font-family: var(--font-mono); color: #fff;">2 updates/day</span>
+              </label>
+              <input type="range" id="rngUpdates" min="1" max="12" value="2" oninput="updateBatteryCalc()">
+            </div>
+
+            <div class="control-row">
+              <label style="display: flex; justify-content: space-between;">
+                <span>Store Environment Ambient Temp</span>
+                <span id="lblTemp" style="font-family: var(--font-mono); color: #fff;">20 &deg;C (Ambient Grocery)</span>
+              </label>
+              <input type="range" id="rngTemp" min="-20" max="30" step="5" value="20" oninput="updateBatteryCalc()">
+            </div>
+          </div>
+
+          <div style="background: var(--surface-2); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+            <div class="stat-row"><span class="stat-k">Calculated Lifespan</span><span class="stat-v" id="valLifespan" style="font-size: 20px; color: var(--accent-emerald);">6.8 Years</span></div>
+            <div class="stat-row"><span class="stat-k">Battery Chemistry</span><span class="stat-v">Dual CR2450 (1200 mAh)</span></div>
+            <div class="stat-row"><span class="stat-k">Per-Refresh Consumption</span><span class="stat-v">18.0 &mu;Ah</span></div>
+            <div class="stat-row"><span class="stat-k">Target Recommendation</span><span class="stat-v" style="color: var(--accent-emerald);">&le; 3 Refreshes/Day</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANTI-PATTERNS -->
+    <h2 class="section-title" id="rules">&#x1F6A8; 10 Banned ESL Integration Anti-Patterns</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Anti-Pattern</th>
+          <th>Manifestation</th>
+          <th>Mandatory Production Counter-Rule</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Scheduled Full Floods</strong></td>
+          <td>Pushing 50k SKUs every midnight</td>
+          <td>Queue strictly modified records using SHA256 delta watermarks.</td>
+        </tr>
+        <tr>
+          <td><strong>Ghost Price Blindness</strong></td>
+          <td>Treating HTTP 200 OK as physical display proof</td>
+          <td>Track gateway RF ACK receipts (<code>status: ACK_CONFIRMED</code>).</td>
+        </tr>
+        <tr>
+          <td><strong>Non-Idempotent Retries</strong></td>
+          <td>Retrying without deduplication tokens</td>
+          <td>Attach <code>UUIDv5(sku, store_id, price_timestamp)</code> to mutations.</td>
+        </tr>
+        <tr>
+          <td><strong>RF Channel Jamming</strong></td>
+          <td>Blasting 5,000 updates/sec to one AP</td>
+          <td>Enforce leaky-bucket queue throttling (&le; 150 tags/min/AP).</td>
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <footer>
+    <div class="container" style="padding: 0;">
+      <p>esl-price-sync · MIT License · Enterprise Retail Architecture · <a href="https://github.com/wwewtech/esl-price-sync" style="color: var(--text-dim);">wwewtech</a></p>
+    </div>
+  </footer>
+
+  <script>
+    function updatePreview() {
+      const title = document.getElementById('inpTitle').value;
+      const price = parseFloat(document.getElementById('inpPrice').value) || 0.0;
+      const promo = document.getElementById('inpPromo').value.trim();
+
+      document.getElementById('epTitle').innerText = title;
+      const parts = price.toFixed(2).split('.');
+      document.getElementById('epInt').innerText = parts[0];
+      document.getElementById('epCents').innerText = '.' + parts[1];
+
+      const badge = document.getElementById('epPromoBadge');
+      if (promo) {
+        badge.style.display = 'block';
+        badge.innerText = promo;
+      } else {
+        badge.style.display = 'none';
+      }
+
+      // Compute mock SHA256 snippet
+      const mockHash = '7a' + Math.abs((title.length * 31 + price * 100).toString(16)).padStart(12, '0');
+      document.getElementById('valHash').innerText = mockHash + '...';
+    }
+
+    function runPipelineSync() {
+      const btn = document.getElementById('btnTriggerSync');
+      btn.disabled = true;
+      btn.innerText = 'Dispatching...';
+
+      const nodes = [
+        { id: 'node2', st: 'st2', label: 'Hashing...' },
+        { id: 'node3', st: 'st3', label: 'Queued' },
+        { id: 'node4', st: 'st4', label: 'Sub-GHz TX' },
+        { id: 'node5', st: 'st5', label: 'ACK RECVD' }
+      ];
+
+      nodes.forEach(n => {
+        document.getElementById(n.id).classList.remove('active', 'success');
+        document.getElementById(n.st).innerText = 'Waiting...';
+      });
+
+      let idx = 0;
+      const interval = setInterval(() => {
+        if (idx > 0) {
+          document.getElementById(nodes[idx-1].id).classList.remove('active');
+          document.getElementById(nodes[idx-1].id).classList.add('success');
+          document.getElementById(nodes[idx-1].st).innerText = 'OK';
+        }
+        if (idx < nodes.length) {
+          document.getElementById(nodes[idx].id).classList.add('active');
+          document.getElementById(nodes[idx].st).innerText = nodes[idx].label;
+          idx++;
+        } else {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.innerText = 'Dispatch Delta Sync';
+          document.getElementById('traceId').innerText = 'TRC-' + Math.floor(100000 + Math.random()*900000) + '-OK';
+        }
+      }, 400);
+    }
+
+    function updateBatteryCalc() {
+      const updates = parseFloat(document.getElementById('rngUpdates').value);
+      const temp = parseInt(document.getElementById('rngTemp').value);
+
+      document.getElementById('lblRefreshes').innerText = `${updates} update${updates>1?'s':''}/day`;
+      let tempLabel = `${temp} \u00B0C (Ambient)`;
+      if (temp < 0) tempLabel = `${temp} \u00B0C (Deep Freezer)`;
+      else if (temp < 10) tempLabel = `${temp} \u00B0C (Chilled Dairy)`;
+      document.getElementById('lblTemp').innerText = tempLabel;
+
+      const nominalMah = 1200.0;
+      const tempFactor = temp < 0 ? 0.65 : (temp < 10 ? 0.85 : 1.0);
+      const usableMah = nominalMah * 0.85 * tempFactor;
+      const dailyDrainUah = (updates * 18.0) + (1.2 * 24.0);
+      const dailyDrainMah = dailyDrainUah / 1000.0;
+      const lifespanYears = (usableMah / dailyDrainMah / 365.25).toFixed(1);
+
+      document.getElementById('valLifespan').innerText = `${lifespanYears} Years`;
+      if (lifespanYears < 4.0) {
+        document.getElementById('valLifespan').style.color = 'var(--accent-red)';
+      } else {
+        document.getElementById('valLifespan').style.color = 'var(--accent-emerald)';
+      }
+    }
+
+    updatePreview();
+    updateBatteryCalc();
+  </script>
 </body>
 </html>
