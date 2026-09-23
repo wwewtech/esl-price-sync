@@ -28,14 +28,12 @@ This registry catalogs **`esl-price-sync`** across every AI agent directory, Cur
 | **VoltAgent/awesome-agent-skills** (34,500+ ⭐) | `Community Skills -> IoT & Retail` | [PR #1091](https://github.com/VoltAgent/awesome-agent-skills/pull/1091) |
 | **PatrickJS/awesome-cursorrules** (10,000+ ⭐) | `Retail IoT / Fullstack` (`rules/esl-price-sync.mdc`) | [PR #390](https://github.com/PatrickJS/awesome-cursorrules/pull/390) |
 | **BehiSecc/awesome-claude-skills** (10,000+ ⭐) | `Enterprise & IoT Tools` | [PR #746](https://github.com/BehiSecc/awesome-claude-skills/pull/746) |
-| **rohitg00/awesome-claude-code-toolkit** (2,300+ ⭐) | `Skills -> IoT & Synchronization` | Prepared / Active |
-| **Prat011/awesome-llm-skills** (1,700+ ⭐) | `Retail Systems & IoT Protocols` | Prepared / Active |
-| **libukai/awesome-agent-skills** (5,100+ ⭐) | `精选技能 -> 智能零售与物联网 (Smart Retail & IoT)` | Prepared / Active |
-| **skillmatic-ai/awesome-agent-skills** (670+ ⭐) | `Popular Collections / Retail Tech` | Prepared / Active |
-| **philipbankier/awesome-agent-skills** | `Domain-Specific -> Retail Automation` | Prepared / Active |
-| **karanb192/awesome-claude-skills** | `IoT & Retail Systems` | Prepared / Active |
-| **spencerpauly/awesome-cursor-skills** | `Enterprise IoT Workflows` | Prepared / Active |
-| **jqueryscript/awesome-claude-code** (510+ ⭐) | `Agent Skills -> Enterprise Tools` | Prepared / Active |
+| **rohitg00/awesome-claude-code-toolkit** (2,300+ ⭐) | `Skills -> Retail & IoT` | [PR #805](https://github.com/rohitg00/awesome-claude-code-toolkit/pull/805) |
+| **Prat011/awesome-llm-skills** (1,700+ ⭐) | `Development & Code Tools` | [PR #259](https://github.com/Prat011/awesome-llm-skills/pull/259) |
+| **libukai/awesome-agent-skills** (5,100+ ⭐) | `精选技能 -> 编程开发` | [PR #166](https://github.com/libukai/awesome-agent-skills/pull/166) |
+| **skillmatic-ai/awesome-agent-skills** (670+ ⭐) | `Popular Collections` | [PR #183](https://github.com/skillmatic-ai/awesome-agent-skills/pull/183) |
+| **spencerpauly/awesome-cursor-skills** | `Utilities` | [PR #87](https://github.com/spencerpauly/awesome-cursor-skills/pull/87) |
+| **jqueryscript/awesome-claude-code** (510+ ⭐) | `Agent Skills` | [PR #690](https://github.com/jqueryscript/awesome-claude-code/pull/690) |
 | **awesome-iot** | `Retail IoT, BLE & Sub-GHz ESL gateways` | Target Catalog |
 | **awesome-retail-tech** | `POS, ERP & Electronic Shelf Label sync` | Target Catalog |
 | **awesome-ecommerce** | `Omnichannel price synchronization` | Target Catalog |
