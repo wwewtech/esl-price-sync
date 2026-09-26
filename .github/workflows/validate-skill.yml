@@ -44,3 +44,29 @@ jobs:
           print('✓ SHA256 symmetry check passed!')
           print('✓ SKILL.md passed all validation checks!')
           "
+
+      - name: Run evals (schema + case integrity)
+        run: |
+          python -c "
+          import json
+
+          with open('evals/evals.json', 'r', encoding='utf-8') as f:
+              data = json.load(f)
+
+          evals = data.get('evals')
+          assert isinstance(evals, list) and len(evals) >= 3, 'evals must be a list with >= 3 cases'
+
+          seen_ids, seen_names = set(), set()
+          for i, e in enumerate(evals):
+              assert isinstance(e, dict), 'eval case must be an object'
+              for field in ('id', 'name', 'prompt', 'expected_output'):
+                  assert field in e and str(e[field]).strip(), 'eval case missing/empty field'
+              assert len(str(e['prompt']).strip()) >= 20, 'eval prompt too short to be a real case'
+              assert len(str(e['expected_output']).strip()) >= 20, 'eval expected_output too short to be real'
+              assert e['id'] not in seen_ids, 'duplicate eval id'
+              assert e['name'] not in seen_names, 'duplicate eval name'
+              seen_ids.add(e['id'])
+              seen_names.add(e['name'])
+
+          print('evals.json: all cases passed schema + integrity checks!')
+          "

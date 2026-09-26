@@ -3,7 +3,7 @@
   "displayName": "ESL Price Sync",
   "version": "1.0.0",
   "description": "Sync retail prices from ERP/POS to Electronic Shelf Labels (ZKONG, SES-imagotag, Pricer, Hanshow, SOLUM): delta updates, idempotency, rate-limited rollout, and audit trail.",
-  "author": "wwewtech (Pavel Lebedev)",
+  "author": "wwew.tech",
   "repository": "https://github.com/wwewtech/esl-price-sync",
   "homepage": "https://skills.sh/wwewtech/esl-price-sync",
   "license": "MIT",
